@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = 
+CXX_INCLUDES = -I/home/kashan/voting/packages/blockchain/src
 
-CXX_FLAGS = -std=gnu++17 -O2 -Wall
+CXX_FLAGS = -std=gnu++17 -O2 -Wall -Wextra
 

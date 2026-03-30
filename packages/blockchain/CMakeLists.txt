@@ -8,9 +8,11 @@ find_package(OpenSSL REQUIRED)
 
 add_executable(voting_system src/voting_system.cpp)
 
+target_include_directories(voting_system PRIVATE src)
+
 target_link_libraries(voting_system
   OpenSSL::SSL
   OpenSSL::Crypto
 )
 
-target_compile_options(voting_system PRIVATE -O2 -Wall)
+target_compile_options(voting_system PRIVATE -O2 -Wall -Wextra)
