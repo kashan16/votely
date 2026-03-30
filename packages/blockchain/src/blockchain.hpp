@@ -10,6 +10,18 @@
 
 class Blockchain {
 public:
+
+        // Called from CLI mode — signature already externally verified
+    bool addVoteVerified(const std::string& voterID, const std::string& candidate,
+                            const std::string& electionID, const std::string& signature) {
+            if (guard_.hasVoted(voterID, electionID)) return false;
+            Transaction tx{voterID, candidate, electionID, signature,
+                        (long long)std::time(nullptr)};
+            pending_.push_back(tx);
+            guard_.markVoted(voterID, electionID);
+            if ((int)pending_.size() >= blockSize_) flushBlock();
+            return true;
+    }
     explicit Blockchain(int difficulty, const std::string& chainFile = "chain.json")
         : difficulty_(difficulty), chainFile_(chainFile) {
 
