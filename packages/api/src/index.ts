@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config(); // MUST be first
 
 import cors from 'cors';
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 
 import chainRouter from './routes/chain';
@@ -22,6 +22,14 @@ app.use('/vote',    voteRouter);
 app.use('/results', resultsRouter);
 app.use('/chain',   chainRouter);
 
-app.listen(PORT, () =>
-  console.log(`[api] Bridge listening on http://localhost:${PORT}`)
-);
+// ── Global error handler ─────────────────────────────────────────────────────
+// Catches any unhandled errors thrown or passed via next(err) in route handlers.
+// Must have 4 parameters for Express to recognise it as an error handler.
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.error('[unhandled]', err);
+  res.status(500).json({ error: err.message || 'Internal server error' });
+});
+
+app.listen(PORT, () => {
+  console.log(`[api] Bridge listening on http://localhost:${PORT}`);
+});

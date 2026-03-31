@@ -1,0 +1,3 @@
+/home/kashan/voting/build/CMakeFiles/voting_system.dir
+/home/kashan/voting/build/CMakeFiles/edit_cache.dir
+/home/kashan/voting/build/CMakeFiles/rebuild_cache.dir

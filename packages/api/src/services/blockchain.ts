@@ -2,43 +2,73 @@
 import { spawn } from 'child_process';
 import path from 'path';
 
-// Path to your compiled binary
+// Path to your compiled binary.
+// Resolved at startup — log it so you can verify it during development.
 const BINARY = path.resolve(__dirname, '../../../blockchain/build/voting_system');
+console.log('[blockchain] binary path:', BINARY);
 
 function runCommand(cmd: string, payload: object = {}): Promise<unknown> {
   return new Promise((resolve, reject) => {
-    const args   = [cmd, JSON.stringify(payload)];
-    const proc   = spawn(BINARY, args);
-    let stdout   = '';
-    let stderr   = '';
+    const args  = [cmd, JSON.stringify(payload)];
+    const proc  = spawn(BINARY, args);
+    let stdout  = '';
+    let stderr  = '';
 
     proc.stdout.on('data', (d) => (stdout += d.toString()));
     proc.stderr.on('data', (d) => (stderr += d.toString()));
 
     proc.on('close', (code) => {
-      if (stderr) console.error('[blockchain]', stderr.trim());
+      if (stderr) console.error('[blockchain stderr]', stderr.trim());
+
+      // Non-zero exit means the binary itself reported a failure.
+      if (code !== 0) {
+        return reject(
+          new Error(
+            `Blockchain binary exited with code ${code}.` +
+            (stderr ? ` stderr: ${stderr.trim()}` : '') +
+            (stdout ? ` stdout: ${stdout.trim()}` : '')
+          )
+        );
+      }
+
+      if (!stdout.trim()) {
+        return reject(new Error(`Blockchain binary produced no output for command "${cmd}"`));
+      }
+
       try {
         resolve(JSON.parse(stdout.trim()));
       } catch {
-        reject(new Error(`Binary output parse failed: ${stdout}`));
+        reject(
+          new Error(
+            `Failed to parse blockchain output for command "${cmd}": ${stdout.trim()}`
+          )
+        );
       }
     });
 
-    proc.on('error', reject);
+    // Handles ENOENT (binary not found), EACCES (not executable), etc.
+    proc.on('error', (err) => {
+      reject(
+        new Error(
+          `Failed to spawn blockchain binary at "${BINARY}": ${err.message}`
+        )
+      );
+    });
   });
 }
 
 export const blockchain = {
-  castVote: (voterID: string, candidate: string, electionID: string,
-             signature: string, publicKey: string) =>
-    runCommand('cast', { voterID, candidate, electionID, signature, publicKey }),
+  castVote: (
+    voterID: string,
+    candidate: string,
+    electionID: string,
+    signature: string,
+    publicKey: string
+  ) => runCommand('cast', { voterID, candidate, electionID, signature, publicKey }),
 
-  getResults: (electionID: string) =>
-    runCommand('results', { electionID }),
+  getResults: (electionID: string) => runCommand('results', { electionID }),
 
-  getChain: () =>
-    runCommand('chain'),
+  getChain: () => runCommand('chain'),
 
-  validate: () =>
-    runCommand('validate'),
+  validate: () => runCommand('validate'),
 };
