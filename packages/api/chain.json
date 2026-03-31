@@ -24,5 +24,22 @@
         "voterID": "f25ee6f5-9356-4f8f-9daa-8753ef016f63"
       }
     ]
+  },
+  {
+    "hash": "000d2a91b57fa6766370e5e63ac1d2bd5a48143f6ffc8600b809b57c7be167c8",
+    "index": 2,
+    "merkleRoot": "c078e3a440b803c998aec567823ca9fe6b70971dd4694f8f0b5478b484e784aa",
+    "nonce": 1998,
+    "previousHash": "000b16e87a5e35cb7dc56a1bfa315402e811555dcb810f97a930b6a418aed383",
+    "timestamp": 1774946922,
+    "transactions": [
+      {
+        "candidate": "Bob Harland",
+        "electionID": "election-2025-general",
+        "signature": "nhsdTTu/VEkajbYfq2BjhcGBe2zLYxtiXY9L4UbVkynW+a4iRP+6v5wWs+6Flox/gfPq2Wry0XL4UjLSJeDDAllilx+WvOrHTp3UaTzDLTPVV50d8x5b8d9gg58V5NcsyPDHIqup7DRC/GepmJWSS3w8hDwAr06emIUYVn5DCE43pzd5FC2j/SgmtxZ3ISOkjulUB6TI1vmxeZs8iMkwTvSlt8zoPn9pURPwZULk13uiIyjN00I6vmRK3/LFEDDHs7bSSHY8OQXr0sqoDPaR7YUkPOoGg1zYIk65/2XdafA/2h82PGlAkXQ9eUcg0V6kHgvu4g0AvE14GsVibNi0qg==",
+        "timestamp": 1774946922,
+        "voterID": "3c7f148c-0c23-4d2c-9de1-ef3499f66507"
+      }
+    ]
   }
 ]
