@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/voting_system.dir/src/voting_system.cpp.o -o voting_system  /usr/lib/x86_64-linux-gnu/libssl.so /usr/lib/x86_64-linux-gnu/libcrypto.so 

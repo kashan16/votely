@@ -35,8 +35,18 @@ function runCommand(cmd: string, payload: object = {}): Promise<unknown> {
         return reject(new Error(`Blockchain binary produced no output for command "${cmd}"`));
       }
 
+      // The binary writes diagnostic log lines (e.g. [persist], [miner]) to stdout
+      // alongside the final JSON result. Extract only the last non-empty line,
+      // which is always the JSON payload.
+      const lines = stdout
+        .split('\n')
+        .map((l) => l.trim())
+        .filter(Boolean);
+
+      const jsonLine = lines[lines.length - 1];
+
       try {
-        resolve(JSON.parse(stdout.trim()));
+        resolve(JSON.parse(jsonLine));
       } catch {
         reject(
           new Error(

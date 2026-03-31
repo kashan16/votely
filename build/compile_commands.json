@@ -1,8 +1,0 @@
-[
-{
-  "directory": "/home/kashan/voting/build",
-  "command": "/usr/bin/c++  -I/home/kashan/voting/packages/blockchain/src -g -std=gnu++17 -O2 -Wall -Wextra -o CMakeFiles/voting_system.dir/src/voting_system.cpp.o -c /home/kashan/voting/packages/blockchain/src/voting_system.cpp",
-  "file": "/home/kashan/voting/packages/blockchain/src/voting_system.cpp",
-  "output": "CMakeFiles/voting_system.dir/src/voting_system.cpp.o"
-}
-]

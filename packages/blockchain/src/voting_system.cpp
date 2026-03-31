@@ -16,6 +16,15 @@ using json = nlohmann::json;
 //   results    {"electionID"}
 //   chain      (no payload)
 //   validate   (no payload)
+//
+// Signature protocol:
+//   - Browser signs (voterID + candidate + electionID) with RSASSA-PKCS1-v1_5 / SHA-256
+//   - Raw binary signature is Base64-encoded for JSON transport
+//   - This binary Base64-decodes it before calling verifySignature()
+//
+// Public key protocol:
+//   - Browser exports key as SPKI, then wraps in PEM headers before storage
+//   - This binary receives the PEM string from Supabase via the Node bridge
 // -------------------------------------------------------------------
 int runCLI(const std::string& cmd, const std::string& payload) {
     try {
@@ -23,21 +32,41 @@ int runCLI(const std::string& cmd, const std::string& payload) {
 
         if (cmd == "cast") {
             auto j = json::parse(payload);
-            std::string voterID    = j["voterID"];
-            std::string candidate  = j["candidate"];
-            std::string electionID = j["electionID"];
-            std::string signature  = j["signature"];   // raw bytes (base64-decoded by Node)
-            std::string publicKey  = j["publicKey"];   // PEM string
 
-            // Verify the signature before touching the chain
+            std::string voterID       = j["voterID"];
+            std::string candidate     = j["candidate"];
+            std::string electionID    = j["electionID"];
+
+            // The client sends a Base64-encoded signature.
+            // Decode to raw bytes here before passing to verifySignature().
+            std::string signatureB64  = j["signature"];
+            std::string signatureRaw;
+            try {
+                signatureRaw = base64Decode(signatureB64);
+            } catch (const std::exception& e) {
+                std::cout << json{{"ok", false}, {"error", "signature_decode_failed"},
+                                  {"detail", e.what()}}.dump() << "\n";
+                return 1;
+            }
+
+            // publicKey must arrive as a PEM string:
+            //   -----BEGIN PUBLIC KEY-----
+            //   <base64 lines>
+            //   -----END PUBLIC KEY-----
+            // UseAuth.ts wraps the SPKI export in these headers before storing.
+            std::string publicKey     = j["publicKey"];
+
             std::string msg = voterID + candidate + electionID;
-            if (!verifySignature(msg, signature, publicKey)) {
+
+            if (!verifySignature(msg, signatureRaw, publicKey)) {
+                std::cerr << "[cast] signature verification failed for voter: " << voterID << "\n";
                 std::cout << json{{"ok", false}, {"error", "signature_invalid"}}.dump() << "\n";
                 return 1;
             }
 
-            // Guard checks double-vote internally
-            if (bc.addVoteVerified(voterID, candidate, electionID, signature)) {
+            // Pass the raw signature (still as the original Base64 string) to
+            // the chain for storage — it's only the verification step that needs raw bytes.
+            if (bc.addVoteVerified(voterID, candidate, electionID, signatureB64)) {
                 bc.flush();
                 std::string blockHash = bc.chain().back().hash;
                 std::cout << json{{"ok", true}, {"blockHash", blockHash}}.dump() << "\n";
@@ -64,16 +93,16 @@ int runCLI(const std::string& cmd, const std::string& payload) {
             for (const auto& b : bc.chain()) {
                 json txs = json::array();
                 for (const auto& tx : b.transactions)
-                    txs.push_back({{"voterID", tx.voterID},
-                                   {"candidate", tx.candidate},
+                    txs.push_back({{"voterID",    tx.voterID},
+                                   {"candidate",  tx.candidate},
                                    {"electionID", tx.electionID},
-                                   {"timestamp", tx.timestamp}});
-                blocks.push_back({{"index", b.index},
-                                   {"hash", b.hash},
+                                   {"timestamp",  tx.timestamp}});
+                blocks.push_back({{"index",        b.index},
+                                   {"hash",         b.hash},
                                    {"previousHash", b.previousHash},
-                                   {"merkleRoot", b.merkleRoot},
-                                   {"timestamp", (long long)b.timestamp},
-                                   {"nonce", b.nonce},
+                                   {"merkleRoot",   b.merkleRoot},
+                                   {"timestamp",    (long long)b.timestamp},
+                                   {"nonce",        b.nonce},
                                    {"transactions", txs}});
             }
             std::cout << json{{"ok", true}, {"chain", blocks}}.dump() << "\n";
@@ -130,7 +159,7 @@ int runDemo() {
 
 int main(int argc, char* argv[]) {
     if (argc >= 2) {
-        std::string cmd = argv[1];
+        std::string cmd     = argv[1];
         std::string payload = argc >= 3 ? argv[2] : "{}";
         return runCLI(cmd, payload);
     }

@@ -7,5 +7,22 @@
     "previousHash": "0000000000000000000000000000000000000000000000000000000000000000",
     "timestamp": 1774935021,
     "transactions": []
+  },
+  {
+    "hash": "000b16e87a5e35cb7dc56a1bfa315402e811555dcb810f97a930b6a418aed383",
+    "index": 1,
+    "merkleRoot": "879d146e342c6cb43c8f1db551b79902fda375fea7392f8b66f7736d87757cf4",
+    "nonce": 1814,
+    "previousHash": "d11153d4d67aed52c0ee1109c03cdec35de80eb290284baca99da61aeb34654b",
+    "timestamp": 1774937855,
+    "transactions": [
+      {
+        "candidate": "Alice Mercer",
+        "electionID": "election-2025-general",
+        "signature": "DM3EfLin+cyNTfhduxzLpVQFb00mAI/RvTYTtKXPV4K/IHbTbvmRbUMLkAOnr2QnMwV3FUCF//VFCajone2J3tTP0sRSHVvgT3POYEmT/VvuQ47Gvk+VeU/qyeL/EhLB+Qo5Mjby2sfoILqLQ73lYxAYO4tOJjYZetbUqtmCLt8XGbfPRnLaRmxyjCls7WYBFgjnHhX+ihr1DDBW6RZVj8fX1j/RkbriOmNjjAQtMeTUek92zaLgN5lwv/kOc9XfZxnU9zS29F9Sa4H8jCU9Tm0OsEf2CK3e0pwedN7Tdf01nSSHGDRCz5Xjfcg8AQjbKa0TwvaFu89fSBgRTwkzIg==",
+        "timestamp": 1774937855,
+        "voterID": "f25ee6f5-9356-4f8f-9daa-8753ef016f63"
+      }
+    ]
   }
 ]
